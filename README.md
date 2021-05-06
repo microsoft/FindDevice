@@ -8,15 +8,15 @@ FindDevice makes it easy to discover devices running a specified program/service
   FindDevice [options]
 
 Options:
-  --link-local-only                    Only look for link-local devices, such as UsbNCM devices Default: false
-  --display-hostname                   Display the device hostname Default: true
-  --display-ipv4                       Display the device IPv4 address Default: true
-  --display-ipv6                       Display the device IPv6 address Default: false
-  --timeout <timeout>                  The amount of time in milliseconds to wait for responses (use greater than 2000
-                                       ms for WiFi). Default: Infinite
-  --query-interval <query-interval>    The amount of time in milliseconds to wait between queries. Default: 1000ms
-  --service <service>                  The DNS-SD service string used for discovery Default: _factorch._tcp.local
-  --version                            Display version information
+| Option |  Details | Default value |
+| -- | -- | -- |
+| --link-local-only | Only look for link-local devices, such as UsbNCM devices | false |
+| --display-hostname | Display the device hostname | true |
+| --display-ipv4 | Display the device IPv4 address(es) | true |
+| --display-ipv6 | Display the device IPv6 address(es) | false |
+| --timeout <timeout> | The amount of time in milliseconds to wait for responses (use greater than 2000ms for WiFi), after which the program exits. | Infinite |
+| --query-interval <query-interval> | The amount of time in milliseconds to wait between queries | 1000ms |
+| --service <service> | The DNS-SD service string used for discovery | _factorch._tcp.local |
   
 ## Contributing
 
