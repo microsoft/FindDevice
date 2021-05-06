@@ -2,8 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework Condition="'$(XES_OUTDIR)' == ''">netcoreapp3.1</TargetFramework>
-    <TargetFramework Condition="'$(XES_OUTDIR)' != ''">netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
   </PropertyGroup>
 

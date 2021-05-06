@@ -1,15 +1,23 @@
-# Project
+# FindDevice
 
-> This repo has been populated by an initial template to help get you started. Please
-> make sure to update the content to build a great experience for community-building.
+FindDevice is a basic .NET commandline tool you can use to look for devices on your local network or even link-local devices (such as devices that support USBNCM). It uses DNS Service Discovery (DNS-SD) to look for devices that advertise the given service. By default, it looks for devices running [actory Orchestrator](https://github.com/microsoft/FactoryOrchestrator) (_factorch._tcp.local) but can be configured to look for any DNS-SD service, such as Windows Device Portal (_wdp.tcp.local).
 
-As the maintainer of this project, please make a few updates:
+FindDevice makes it easy to discover devices running a specified program/service, so that they can be then interacted with remotely.
 
-- Improving this README.MD file to provide a great experience
-- Updating SUPPORT.MD with content about this project's support experience
-- Understanding the security reporting process in SECURITY.MD
-- Remove this section from the README
+## Usage
+  FindDevice [options]
 
+Options:
+  --link-local-only                    Only look for link-local devices, such as UsbNCM devices Default: false
+  --display-hostname                   Display the device hostname Default: true
+  --display-ipv4                       Display the device IPv4 address Default: true
+  --display-ipv6                       Display the device IPv6 address Default: false
+  --timeout <timeout>                  The amount of time in milliseconds to wait for responses (use greater than 2000
+                                       ms for WiFi). Default: Infinite
+  --query-interval <query-interval>    The amount of time in milliseconds to wait between queries. Default: 1000ms
+  --service <service>                  The DNS-SD service string used for discovery Default: _factorch._tcp.local
+  --version                            Display version information
+  
 ## Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
