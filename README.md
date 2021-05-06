@@ -1,6 +1,6 @@
 # FindDevice
 
-FindDevice is a basic .NET command line tool you can use to look for devices on your local network or even link-local devices (such as devices that support USBNCM). It uses DNS Service Discovery (DNS-SD) to look for devices that advertise the given service. By default, it looks for devices running [actory Orchestrator](https://github.com/microsoft/FactoryOrchestrator) (_factorch._tcp.local) but can be configured to look for any DNS-SD service, such as Windows Device Portal (_wdp.tcp.local).
+FindDevice is a basic .NET command line tool you can use to look for devices on your local network or even link-local devices (such as devices that support USBNCM). It uses DNS Service Discovery (DNS-SD) to look for devices that advertise the given service. By default, it looks for devices running [Factory Orchestrator](https://github.com/microsoft/FactoryOrchestrator) (_factorch._tcp.local) but can be configured to look for any DNS-SD service, such as Windows Device Portal (_wdp.tcp.local).
 
 FindDevice makes it easy to discover devices running a specified program/service, so that they can be then interacted with remotely.
 
