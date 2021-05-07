@@ -21,6 +21,7 @@ namespace finddevice
         /// <param name="displayHostname">Display the device hostname Default: true</param>
         /// <param name="displayIPv4">Display the device IPv4 address Default: true</param>
         /// <param name="displayIPv6">Display the device IPv6 address Default: false</param>
+        /// <param name="displayPort">Display the port the service is discovered on Default: true</param>
         /// <param name="timeout">The amount of time in milliseconds to wait for responses (use greater than 2000 ms for WiFi). Default: Infinite</param>
         /// <param name="queryInterval">The amount of time in milliseconds to wait between queries. Default: 1000ms</param>
         /// <param name="service">The DNS-SD service string used for discovery Default: _factorch._tcp.local</param>
@@ -29,6 +30,7 @@ namespace finddevice
             bool displayHostname = true,
             bool displayIPv4 = true,
             bool displayIPv6 = false,
+            bool displayPort = true,
             int timeout = -1,
             int queryInterval = 1000,
             string service = "_factorch._tcp.local"
@@ -62,6 +64,7 @@ namespace finddevice
             DisplayHostname = displayHostname;
             DisplayIPv4 = displayIPv4;
             DisplayIPv6 = displayIPv6;
+            DisplayPort = displayPort;
             DeviceList = new ConcurrentDictionary<string, (AAAARecord ipv6, bool ActivelySeen)>();
             PrintQueue = new ConcurrentQueue<string>();
             MDns = new MulticastService();
@@ -121,7 +124,7 @@ namespace finddevice
         private static void MDns_AnswerReceived(object sender, MessageEventArgs e)
         {
             // Extract the DNS-SD service that replied, and the device's IP addresses
-            // Replies might be in Answers on AdditionalRecords so check both
+            // Replies might be in Answers or AdditionalRecords so check both
             var srvRecords = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<SRVRecord>().Distinct();
             var ipv4s = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<ARecord>();
             var ipv6s = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<AAAARecord>();
@@ -180,6 +183,10 @@ namespace finddevice
                 {
                     shouldAdd = false;
                 }
+            }
+            if (DisplayPort)
+            {
+                output += srvRecords.First().Port + " ";
             }
 
             if (shouldAdd)
@@ -245,6 +252,7 @@ namespace finddevice
         private static bool DisplayHostname;
         private static bool DisplayIPv4;
         private static bool DisplayIPv6;
+        private static bool DisplayPort;
         private static object PrintLock = new object();
         private static System.Timers.Timer QueryTimer;
         private static ConcurrentDictionary<string, (AAAARecord ipv6, bool ActivelySeen)> DeviceList;

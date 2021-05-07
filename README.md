@@ -4,6 +4,8 @@ FindDevice is a basic .NET command line tool you can use to look for devices on 
 
 FindDevice makes it easy to discover devices running a specified program/service, so that they can be then interacted with remotely.
 
+![image of FindDevice](https://user-images.githubusercontent.com/31931010/117501891-8c7b0f00-af33-11eb-94d7-6b4ee4b6e090.png)
+
 ## Usage
   FindDevice [options]
 
@@ -14,6 +16,7 @@ Options:
 | --display-hostname | Display the device hostname | true |
 | --display-ipv4 | Display the device IPv4 address(es) | true |
 | --display-ipv6 | Display the device IPv6 address(es) | false |
+| --display-port | Display the port the service is discovered on | true |
 | --timeout <timeout> | The amount of time in milliseconds to wait for responses (use greater than 2000ms for WiFi), after which the program exits. | Infinite |
 | --query-interval <query-interval> | The amount of time in milliseconds to wait between queries | 1000ms |
 | --service <service> | The DNS-SD service string used for discovery | _factorch._tcp.local |
