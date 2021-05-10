@@ -21,7 +21,7 @@ namespace finddevice
         /// <param name="displayHostname">Display the device hostname Default: true</param>
         /// <param name="displayIPv4">Display the device IPv4 address Default: true</param>
         /// <param name="displayIPv6">Display the device IPv6 address Default: false</param>
-        /// <param name="displayPort">Display the port the service is discovered on Default: true</param>
+        /// <param name="displayPort">Display the port the service is discovered on Default: false</param>
         /// <param name="timeout">The amount of time in milliseconds to wait for responses (use greater than 2000 ms for WiFi). Default: Infinite</param>
         /// <param name="queryInterval">The amount of time in milliseconds to wait between queries. Default: 1000ms</param>
         /// <param name="service">The DNS-SD service string used for discovery Default: _factorch._tcp.local</param>
@@ -30,7 +30,7 @@ namespace finddevice
             bool displayHostname = true,
             bool displayIPv4 = true,
             bool displayIPv6 = false,
-            bool displayPort = true,
+            bool displayPort = false,
             int timeout = -1,
             int queryInterval = 1000,
             string service = "_factorch._tcp.local"
@@ -65,7 +65,7 @@ namespace finddevice
             DisplayIPv4 = displayIPv4;
             DisplayIPv6 = displayIPv6;
             DisplayPort = displayPort;
-            DeviceList = new ConcurrentDictionary<string, (AAAARecord ipv6, bool ActivelySeen)>();
+            DeviceList = new ConcurrentDictionary<string, bool>();
             PrintQueue = new ConcurrentQueue<string>();
             MDns = new MulticastService();
 
@@ -126,8 +126,8 @@ namespace finddevice
             // Extract the DNS-SD service that replied, and the device's IP addresses
             // Replies might be in Answers or AdditionalRecords so check both
             var srvRecords = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<SRVRecord>().Distinct();
-            var ipv4s = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<ARecord>();
-            var ipv6s = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<AAAARecord>();
+            var ipv4s = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<ARecord>().OrderBy(x => x.Address.ToString());
+            var ipv6s = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<AAAARecord>().OrderBy(x => x.Address.ToString());
 
             // Ensure the service we found matches the service we are looking for.
             // Also ensure it has an ipv6 address (everything should!)
@@ -191,17 +191,14 @@ namespace finddevice
 
             if (shouldAdd)
             {
-                // Only notify the user and add the device if the it has all the info the user asked for.
-                // When a device is first discovered, it may only have an ipv6 address.
-                if (DeviceList.TryAdd(output, (ipv6s.First(), true)))
+                if (DeviceList.TryAdd(output, true))
                 {
                     PrintQueue.Enqueue($"Discovered: {output}");
-                    //Console.WriteLine($"Discovered: {output}");
                 }
                 else // Device has been discovered already.
                 {
                     // Mark the device as discovered (again) to ensure it isn't removed by the recheck logic.
-                    DeviceList.TryUpdate(output, (DeviceList[output].ipv6, true), (DeviceList[output].ipv6, false));
+                    DeviceList.TryUpdate(output, true, false);
                 }
             }
         }
@@ -224,14 +221,14 @@ namespace finddevice
                     try
                     {
                         // If it is time to recheck devices, mark every device as not discovered
-                        if (!DeviceList.TryUpdate(key, (DeviceList[key].ipv6, false), (DeviceList[key].ipv6, true)))
+                        if (!DeviceList.TryUpdate(key, false, true))
                         {
                             // TryUpdate returned false.
                             // The device has already was not found the previous recheck cycle. Assume it is gone and notify the user.
-                            (AAAARecord ipv6, bool ActivelySeen) ret;
+                            bool ret;
                             if (DeviceList.TryRemove(key, out ret))
                             {
-                                PrintQueue.Enqueue($"Lost: {key}");
+                                PrintQueue.Enqueue($"Lost:       {key}");
                             }
                         }
                     }
@@ -255,7 +252,7 @@ namespace finddevice
         private static bool DisplayPort;
         private static object PrintLock = new object();
         private static System.Timers.Timer QueryTimer;
-        private static ConcurrentDictionary<string, (AAAARecord ipv6, bool ActivelySeen)> DeviceList;
+        private static ConcurrentDictionary<string, bool> DeviceList;
         private static ConcurrentQueue<string> PrintQueue;
         private static Timer PrintTimer;
     }
