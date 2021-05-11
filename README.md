@@ -9,6 +9,8 @@ FindDevice makes it easy to discover devices running a specified program/service
 ## Installation
 The [GitHub releases page](https://github.com/microsoft/FindDevice/releases) has the latest builds for both Windows and Linux. Simply download and unzip your desired build and run FindDevice!
 
+You likely will need to edit your firewall rules to allow FindDevice to work properly. It relies on inbound connections to UDP port 5353.
+
 ## Usage
   FindDevice [options]
 
