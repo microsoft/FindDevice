@@ -16,7 +16,7 @@ Options:
 | --display-hostname | Display the device hostname | true |
 | --display-ipv4 | Display the device IPv4 address(es) | true |
 | --display-ipv6 | Display the device IPv6 address(es) | false |
-| --display-port | Display the port the service is discovered on | true |
+| --display-port | Display the port the service is discovered on | false |
 | --timeout <timeout> | The amount of time in milliseconds to wait for responses (use greater than 2000ms for WiFi), after which the program exits. | Infinite |
 | --query-interval <query-interval> | The amount of time in milliseconds to wait between queries | 1000ms |
 | --service <service> | The DNS-SD service string used for discovery | _factorch._tcp.local |
