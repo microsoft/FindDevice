@@ -79,7 +79,7 @@ jobs:
         certificateId: 'CP-230012'
         pattern: '*__FindDevice.dll,*__FindDevice.exe'
         useMinimatch: false
-        shouldSign: ${{ parameters.ShouldSign }}
+        shouldSign: $(SHOULDSIGN)
         alwaysCopy: 'true'
         signingService: 'FactoryOrchestratorSigning'
         verifySignature: 'true'
@@ -93,7 +93,7 @@ jobs:
         certificateId: 'CP-231522'
         pattern: '*__Common.Logging*.dll,*__System.Net.IPNetwork.dll,*__SimpleBase.dll,*__Makaretu.*.dll'
         useMinimatch: false
-        shouldSign: ${{ parameters.ShouldSign }}
+        shouldSign: $(SHOULDSIGN)
         alwaysCopy: 'true'
         signingService: 'FactoryOrchestratorSigning'
         verifySignature: 'true'
