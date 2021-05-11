@@ -102,7 +102,7 @@ jobs:
     - template: assembly-module-compliance.yml@ComplianceRepo
       parameters:
         # binskim
-        AnalyzeTarget: '$(Pipeline.Workspace)/signeduniquefiles_stage2/*__Common.Logging*.dll;$(Pipeline.Workspace)/signeduniquefiles_stage2/*__System.Net.IPNetwork.dll;$(Pipeline.Workspace)/signeduniquefiles_stage2/*__SimpleBase.dll;$(Pipeline.Workspace)/signeduniquefiles_stage2/*__Makaretu.*.dll;$(Pipeline.Workspace)/signeduniquefiles_stage2/*__FindDevice.dll;$(Pipeline.Workspace)/signeduniquefiles_stage2/*__FindDevice.exe'
+        AnalyzeTarget: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2/*__Common.Logging*.dll;$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2/*__System.Net.IPNetwork.dll;$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2/*__SimpleBase.dll;$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2/*__Makaretu.*.dll;$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2/*__FindDevice.dll;$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2/*__FindDevice.exe'
         AnalyzeSymPath: 'SRV*'
         # component-governance
         sourceScanPath: '$(Build.SourcesDirectory)/src'
@@ -114,9 +114,6 @@ jobs:
         # tsa-upload
         codeBaseName: 'FindDevice'
         # API Scan
-        softwareFolder: '$(Pipeline.Workspace)/SignedBin_Windows_Release_AllPlatforms'
-        softwareName: 'FactoryOrchestrator'
-        softwareVersion: '$(VERSIONPREFIX)$(VERSIONSUFFIXVPACK)'
         APIScan: 'false'
 
     # undo uniqify. The signed files are copied to where they were found in $(Build.ArtifactStagingDirectory).
