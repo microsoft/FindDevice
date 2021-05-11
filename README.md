@@ -6,6 +6,9 @@ FindDevice makes it easy to discover devices running a specified program/service
 
 ![image of FindDevice](https://user-images.githubusercontent.com/31931010/117501891-8c7b0f00-af33-11eb-94d7-6b4ee4b6e090.png)
 
+## Installation
+The [GitHub releases page](https://github.com/microsoft/FindDevice/releases) has the latest builds for both Windows and Linux. Simply download and unzip your desired build and run FindDevice!
+
 ## Usage
   FindDevice [options]
 
