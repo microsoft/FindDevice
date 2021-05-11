@@ -1,14 +1,26 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <Authors>Microsoft</Authors>
+    <Company>Microsoft Corporation</Company>
+    <Copyright>© Microsoft Corporation. All rights reserved.</Copyright>
+    <PackageProjectUrl>https://github.com/microsoft/factoryorchestrator</PackageProjectUrl>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <PublishReadyToRunShowWarnings>true</PublishReadyToRunShowWarnings>
+    <OutputPath>$(MSBuildThisFileDirectory)../bin/$(Configuration)/$(Platform)/$(TargetName)</OutputPath>
+    <!-- Deterministic Builds for source link -->
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <!-- Embed source files that are not tracked by the source control manager in the PDB -->
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Makaretu.Dns.Multicast" Version="0.25.0" />
     <PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.19405.1" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
 
 </Project>

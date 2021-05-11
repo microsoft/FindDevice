@@ -1,0 +1,14 @@
+steps:
+- pwsh: |
+    if ($env:SKIPSIGN -eq 'false' -or (($null -ne $env:FORCESIGN) -and ($env:FORCESIGN -eq $true)))
+    {
+      $vstsCommandString = "vso[task.setvariable variable=SHOULDSIGN]true"
+    }
+    else
+    {
+      $vstsCommandString = "vso[task.setvariable variable=SHOULDSIGN]false"
+    }
+    Write-Host "sending " + $vstsCommandString
+    Write-Host "##$vstsCommandString"
+  displayName: 'Set SHOULDSIGN'
+  name: SetSHOULDSIGN

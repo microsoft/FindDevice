@@ -1,0 +1,14 @@
+# publishes a variant of the Service
+parameters:
+  BuildConfiguration: 'Release'
+  BuildPlatform: 'x64'
+  BuildOS: 'win'
+
+steps:
+  - task: ArchiveFiles@2
+    inputs:
+      rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/Publish/${{ parameters.BuildOS }}/FindDevice-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}' 
+      includeRootFolder: false 
+      archiveType: 'zip'
+      archiveFile: '$(Build.ArtifactStagingDirectory)/Zips/FindDevice-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}.zip'
+    displayName: 'zip FindDevice-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}'

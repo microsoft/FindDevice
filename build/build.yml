@@ -1,0 +1,139 @@
+trigger:
+- none
+pr:
+- none
+
+resources:
+  repositories:
+  - repository: ComplianceRepo
+    type: github
+    endpoint: microsoft
+    name: PowerShell/Compliance
+    ref: master
+
+variables:
+  SigningServer: "http://rfc3161.gtm.corp.microsoft.com/TSS/HttpTspServer"
+  BuildConfiguration: 'Release'
+  ${{ if or(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), eq(variables['Build.SourceBranchName'], 'main')) }}:
+    SKIPSIGN: 'false'
+  ${{ if not(or(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), eq(variables['Build.SourceBranchName'], 'main'))) }}:
+    SKIPSIGN: 'true'
+
+jobs:
+  - job: Build_projects_and_publish_vpack
+    pool:
+      name: Package ES Standard Build
+    steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core 3.1 sdk'
+      inputs:
+        packageType: sdk
+        version: 3.1.x
+        installationPath: $(Agent.ToolsDirectory)\dotnet
+    - template: ./templates/template-set-should-sign.yml
+    - pwsh: |
+        Get-Item -Path env:* | Sort-Object Name
+      displayName: "Print all variables"
+
+    # Publish app for Windows & Linux
+    - template: ./templates/template-dotnet-publish.yml
+      parameters:
+        BuildPlatform: 'x86'
+    - template: ./templates/template-dotnet-publish.yml
+      parameters:
+        BuildPlatform: 'x64'
+    - template: ./templates/template-dotnet-publish.yml
+      parameters:
+        BuildPlatform: 'arm'
+    - template: ./templates/template-dotnet-publish.yml
+      parameters:
+        BuildPlatform: 'arm64'
+    - template: ./templates/template-dotnet-publish.yml
+      parameters:
+        BuildPlatform: 'x64'
+        BuildOS: 'linux'
+    - template: ./templates/template-dotnet-publish.yml
+      parameters:
+        BuildPlatform: 'arm'
+        BuildOS: 'linux'
+    - template: ./templates/template-dotnet-publish.yml
+      parameters:
+        BuildPlatform: 'arm64'
+        BuildOS: 'linux'
+
+    # uniqify binaries to speed up signing process by not signing dup files
+    - task: PowerShell@2
+      inputs:
+        targetType: filePath
+        filePath: $(Build.SourcesDirectory)/build/internal/CopyUniqueBins.ps1
+        arguments: '-CopySource "$(Build.ArtifactStagingDirectory)/Publish" -CopyDestination "$(System.DefaultWorkingDirectory)/unsigneduniquefiles" -MappingFileOut "$(System.DefaultWorkingDirectory)/mappingfile.xml"'
+        failOnStderr: true
+        pwsh: true
+      displayName: 'Copy unique files to staging directory'
+      
+    # ​​CP-230012 is for Microsoft authored binaries. Authenticode signing.
+    - template: EsrpSign.yml@ComplianceRepo
+      parameters:
+        buildOutputPath: '$(System.DefaultWorkingDirectory)/unsigneduniquefiles/'
+        signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage1/'
+        certificateId: 'CP-230012'
+        pattern: '*__FindDevice.dll,*__FindDevice.exe'
+        useMinimatch: false
+        shouldSign: ${{ parameters.ShouldSign }}
+        alwaysCopy: 'true'
+        signingService: 'FactoryOrchestratorSigning'
+        verifySignature: 'true'
+        pageHash: 'false'
+
+    # CP-231522​ is for 3rd party authored binaries (OSS).
+    - template: EsrpSign.yml@ComplianceRepo
+      parameters:
+        buildOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage1/'
+        signOutputPath: '$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2/'
+        certificateId: 'CP-231522'
+        pattern: '*__Common.Logging*.dll,*__System.Net.IPNetwork.dll,*__SimpleBase.dll,*__Makaretu.*.dll'
+        useMinimatch: false
+        shouldSign: ${{ parameters.ShouldSign }}
+        alwaysCopy: 'true'
+        signingService: 'FactoryOrchestratorSigning'
+        verifySignature: 'true'
+        pageHash: 'false'
+        
+    # undo uniqify. The signed files are copied to where they were found in $(Build.ArtifactStagingDirectory).
+    - task: PowerShell@2
+      inputs:
+        targetType: filePath
+        filePath: $(Build.SourcesDirectory)/build/internal/CopyUniqueBins.ps1
+        arguments: '-CopySource "$(System.DefaultWorkingDirectory)/signeduniquefiles_stage2" -MappingFileIn "$(System.DefaultWorkingDirectory)/mappingfile.xml"'
+        failOnStderr: true
+        pwsh: true
+      displayName: 'Copy signed, unique files to UnsignedInput directory'
+    
+    - template: ./templates/template-zip-publish.yml
+      parameters:
+        BuildPlatform: 'x86'
+    - template: ./templates/template-zip-publish.yml
+      parameters:
+        BuildPlatform: 'x64'
+    - template: ./templates/template-zip-publish.yml
+      parameters:
+        BuildPlatform: 'arm'
+    - template: ./templates/template-zip-publish.yml
+      parameters:
+        BuildPlatform: 'arm64'
+    - template: ./templates/template-zip-publish.yml
+      parameters:
+        BuildPlatform: 'x64'
+        BuildOS: 'linux'
+    - template: ./templates/template-zip-publish.yml
+      parameters:
+        BuildPlatform: 'arm'
+        BuildOS: 'linux'
+    - template: ./templates/template-zip-publish.yml
+      parameters:
+        BuildPlatform: 'arm64'
+        BuildOS: 'linux'
+
+    - publish: '$(Build.ArtifactStagingDirectory)/Zips'
+      artifact: 'Publish_AllPlatforms'
+      displayName: 'Publish app'

@@ -1,0 +1,31 @@
+# publishes a variant of the Service
+parameters:
+  BuildConfiguration: 'Release'
+  BuildPlatform: 'x64'
+  BuildOS: 'win'
+
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'publish'
+    publishWebProjects: False
+    zipAfterPublish: false
+    arguments: '$(Build.SourcesDirectory)/src/FindDevice.csproj --nologo --self-contained --configuration ${{ parameters.BuildConfiguration }} -r ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} --output $(Build.ArtifactStagingDirectory)/Publish/${{ parameters.BuildOS }}/FindDevice-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}'
+  displayName: 'dotnet publish for ${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }} runtime ${{ parameters.BuildConfiguration }}'
+- task: CopyFiles@2
+  displayName: 'Copy NOTICE to publish'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'NOTICE.txt'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/Publish/${{ parameters.BuildOS }}/FindDevice-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}'
+- task: CopyFiles@2
+  displayName: 'Copy LICENSE to publish'
+  inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: 'LICENSE'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/Publish/${{ parameters.BuildOS }}/FindDevice-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}'
+- pwsh: |
+    $content = "FindDevice source code and documentation are all available on GitHub as MIT licensed open source!"
+    $content += "https://github.com/microsoft/FindDevice"
+    $content | out-file "$(Build.ArtifactStagingDirectory)/Publish/${{ parameters.BuildOS }}/FindDevice-${{ parameters.BuildOS }}-${{ parameters.BuildPlatform }}/README.txt"
+  displayName: 'Create README.txt'
