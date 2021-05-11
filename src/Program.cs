@@ -130,11 +130,22 @@ namespace finddevice
             var ipv6s = e.Message.AdditionalRecords.Union(e.Message.Answers).OfType<AAAARecord>().OrderBy(x => x.Address.ToString());
 
             // Ensure the service we found matches the service we are looking for.
-            // Also ensure it has an ipv6 address (everything should!)
-            if (ipv6s.Count() == 0 || srvRecords.Count() == 0 || !srvRecords.Any(x => x.CanonicalName.EndsWith(ServiceToQuery)) || (ipv6s.All(x => !x.Address.IsIPv6LinkLocal) && LinkLocalOnly))
+            if (srvRecords.Count() == 0 || !srvRecords.Any(x => x.CanonicalName.EndsWith(ServiceToQuery)))
             {
                 return;
             }
+
+            // Ensure the service supports the desired settings
+            if (DisplayIPv6 && (ipv6s.Count() == 0 || (ipv6s.All(x => !x.Address.IsIPv6LinkLocal) && LinkLocalOnly)))
+            {
+                return;
+            }
+
+            if (DisplayIPv4 && (ipv4s.Count() == 0 || (ipv4s.All(x => !x.Address.ToString().StartsWith("169.254", StringComparison.InvariantCultureIgnoreCase) && LinkLocalOnly))))
+            {
+                return;
+            }
+
             // Build device information string
             string output = "";
             bool shouldAdd = true;
